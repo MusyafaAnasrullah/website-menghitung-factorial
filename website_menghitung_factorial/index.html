@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factorial Calculator Pro</title>
+    <style>
+        /* CSS Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            padding: 20px;
+        }
+
+        /* Container Utama */
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        /* Form Styling */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1.1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Output Styling */
+        .output {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .output.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .error {
+            color: #e53e3e;
+            background: #fed7d7;
+            border-left-color: #e53e3e;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        /* Dark Mode Toggle (Bonus Pro Feature) */
+        .toggle-dark {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: 1px solid #667eea;
+            color: #667eea;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .container {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .output {
+            background: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toggle Dark Mode Button -->
+    <button class="toggle-dark" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+
+    <div class="container">
+        <h1>Factorial Calculator</h1>
+        <form id="factorialForm">
+            <div class="input-group">
+                <label for="numberInput">Masukkan bilangan bulat non-negatif:</label>
+                <input type="number" id="numberInput" min="0" required aria-describedby="help-text">
+                <small id="help-text">Contoh: 5 (akan menghasilkan 120)</small>
+            </div>
+            <button type="submit">Hitung!</button>
+            <button type="reset" style="background: #a0aec0;">Reset</button>
+        </form>
+        <div id="output" class="output"></div>
+    </div>
+
+    <script>
+        /**
+         * Modul JavaScript untuk Factorial Calculator.
+         * Author: BLACKBOX.AI Assistant
+         * Version: 1.0
+         * 
+         * Fitur:
+         * - Hitung factorial dengan rekursi (untuk n kecil, hindari stack overflow).
+         * - Validasi input: Hanya integer >= 0.
+         * - Animasi output dengan CSS classes.
+         * - Dark mode toggle sebagai bonus.
+         */
+
+        // Fungsi utama untuk menghitung factorial
+        function factorial(n) {
+            /**
+             * Menghitung factorial dari n menggunakan rekursi.
+             * 
+             * @param {number} n - Bilangan bulat non-negatif.
+             * @returns {number} Nilai factorial, atau throw error jika invalid.
+             * @throws {Error} Jika n < 0 atau bukan integer.
+             */
+            if (!Number.isInteger(n) || n < 0) {
+                throw new Error('Input harus bilangan bulat non-negatif!');
+            }
+            if (n === 0 || n === 1) {
+                return 1;
+            }
+            return n * factorial(n - 1);
+        }
+
+        // Event listener untuk form submit
+        document.getElementById('factorialForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const input = document.getElementById('numberInput');
+            const output = document.getElementById('output');
+            const number = parseInt(input.value, 10);
+
+            try {
+                // Validasi tambahan
+                if (isNaN(number)) {
+                    throw new Error('Input harus berupa angka!');
+                }
+
+                // Hitung factorial (batasi n <= 20 untuk hindari overflow di JS)
+                if (number > 20) {
+                    throw new Error('Input terlalu besar! Maksimal 20 untuk menghindari overflow.');
+                }
+
+                const result = factorial(number);
+                output.innerHTML = `<div class="result">Factorial dari ${number} adalah: ${result}</div>`;
+                output.className = 'output show'; // Trigger animasi
+                output.classList.remove('error');
+
+            } catch (error) {
+                output.innerHTML = `<div class="result">Error: ${error.message}</div>`;
+                output.className = 'output show error'; // Animasi dengan error style
+            }
+        });
+
+        // Reset form dan output
+        document.querySelector('button[type="reset"]').addEventListener('click', function() {
+            document.getElementById('output').className = 'output';
+            document.getElementById('numberInput').value = '';
+        });
+
+        // Fungsi toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const button = document.querySelector('.toggle-dark');
+            button.textContent = document.body.classList.contains('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+        }
+
+        // Inisialisasi: Fokus ke input saat load
+        window.addEventListener('load', function() {
+            document.getElementById('numberInput').focus();
+        });
+    </script>
+</body>
+</html>
